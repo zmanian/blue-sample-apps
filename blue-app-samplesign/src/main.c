@@ -453,7 +453,7 @@ void sample_main(void) {
                     cx_ecfp_generate_pair(CX_CURVE_Ed25519, &publicKey,
                                           &privateKey, 1);
                     os_memmove(G_io_apdu_buffer, publicKey.W, 32);
-                    tx = 65;
+                    tx = 32;
                     THROW(0x9000);
                 } break;
 

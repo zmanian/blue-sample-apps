@@ -17,7 +17,7 @@
 #********************************************************************************
 from ledgerblue.comm import getDongle
 from ledgerblue.commException import CommException
-from secp256k1 import PublicKey
+import ed25519
 
 textToSign = ""
 while True:
@@ -44,9 +44,13 @@ try:
 		signature = dongle.exchange(apdu)
 		offset += len(chunk)  	
 	print "signature " + str(signature).encode('hex')
-	publicKey = PublicKey(bytes(publicKey), raw=True)
-	signature = publicKey.ecdsa_deserialize(bytes(signature))
-	print "verified " + str(publicKey.ecdsa_verify(bytes(textToSign), signature))
+	# publicKey = PublicKey(bytes(publicKey), raw=True)
+	print "pubKeylen:"+ str(len(publicKey))
+	publicKey = ed25519.VerifyingKey(bytes(publicKey))
+	publicKey.verify(bytes(signature), bytes(textToSign))
+
+	# signature = publicKey.ecdsa_deserialize(bytes(signature))
+	# print "verified " + str(publicKey.ecdsa_verify(bytes(textToSign), signature))
 except CommException as comm:
 	if comm.sw == 0x6985:
 		print "Aborted by user"

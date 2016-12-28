@@ -341,8 +341,8 @@ unsigned int io_seproxyhal_touch_approve(bagl_element_t *e) {
         // Hash is finalized, send back the signature
         unsigned char result[32];
         cx_hash(&hash.header, CX_LAST, G_io_apdu_buffer, 0, result);
-        tx = cx_ecdsa_sign(&N_privateKey, CX_RND_RFC6979 | CX_LAST, CX_SHA256,
-                           result, sizeof(result), G_io_apdu_buffer);
+        tx = cx_eddsa_sign(&N_privateKey, NULL, CX_LAST, CX_SHA512, result,
+                               sizeof(result), G_io_apdu_buffer)
         G_io_apdu_buffer[0] &= 0xF0; // discard the parity information
         hashTainted = 1;
     }
@@ -450,7 +450,7 @@ void sample_main(void) {
                     cx_ecfp_private_key_t privateKey;
                     os_memmove(&privateKey, &N_privateKey,
                                sizeof(cx_ecfp_private_key_t));
-                    cx_ecfp_generate_pair(CX_CURVE_256K1, &publicKey,
+                    cx_ecfp_generate_pair(CX_CURVE_Ed25519, &publicKey,
                                           &privateKey, 1);
                     os_memmove(G_io_apdu_buffer, publicKey.W, 65);
                     tx = 65;
@@ -631,7 +631,7 @@ __attribute__((section(".boot"))) int main(void) {
                 unsigned char canary;
                 cx_ecfp_private_key_t privateKey;
                 cx_ecfp_public_key_t publicKey;
-                cx_ecfp_generate_pair(CX_CURVE_256K1, &publicKey, &privateKey,
+                cx_ecfp_generate_pair(CX_CURVE_Ed25519, &publicKey, &privateKey,
                                       0);
                 nvm_write(&N_privateKey, &privateKey, sizeof(privateKey));
                 canary = 0x01;
